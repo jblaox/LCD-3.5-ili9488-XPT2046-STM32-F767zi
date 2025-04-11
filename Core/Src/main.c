@@ -1,0 +1,370 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2025 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
+#include "crc.h"
+#include "spi.h"
+#include "usart.h"
+#include "gpio.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+#include "stdio.h"
+#include "ILI9488_SPI.h"
+//#include "XPT2046.h"
+#include "Font.h"
+#include "AF12x16.h"
+//#include "image.h"
+#include "XPT2046.h"
+#include "AA_delay.h"
+
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+
+char LCD_str[100];
+volatile  uint16_t LCD_x = 0;
+volatile  uint16_t LCD_y = 0;
+volatile  uint32_t X_Raw , Y_Raw;
+
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
+
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART3_UART_Init();
+  MX_SPI1_Init();
+  MX_CRC_Init();
+  /* USER CODE BEGIN 2 */
+	
+	
+	
+	//--------------------------------------------------------------------------------------//
+	//                               Timer For Touch Start                                  //
+	//--------------------------------------------------------------------------------------//
+	AA_delayInit();
+	//HAL_TIM_Base_Start(&htim11);
+	
+	// کلاک 200 مگا هرتز باشد
+	// اين دستور 5 نانو ثانيه تاخير دقيق ايجاد ميکند
+	__ASM volatile ("NOP");
+	
+	
+	//--------------------------------------------------------------------------------------//
+	//                                      Initialize LCD                                  //
+	//--------------------------------------------------------------------------------------//
+	
+	// LCD background on
+	HAL_GPIO_WritePin(LCD_LED_GPIO_Port, LCD_LED_Pin, GPIO_PIN_SET);
+	
+	// Initialize ili9488
+	ILI9488_Init();
+	
+	// Fill Screen
+//  ILI9488_Fill_Screen(Color_RED);
+//	HAL_Delay(500);
+//	ILI9488_Fill_Screen(Color_GREEN);
+//	HAL_Delay(500);
+//	ILI9488_Fill_Screen(Color_BLUE);
+	
+	// Set Font
+	LcdFont(AF12x16);
+	
+	// Set Language
+	//SetLetter(E_LETTER);
+	
+	// Set Font Size
+	//LcdFontXScale(1);
+	//LcdFontYScale(1);
+	
+	// Set Screen Rotation
+	//ILI9488_Set_Rotation(0);
+	
+	// Show Image
+	//drawImage(140,225,30,30,logo);
+	
+	LcdFontXScale(3);
+	LcdFontYScale(3);
+
+	ILI9488_Set_Rotation(0);
+	ILI9488_Fill_Screen(Color_BLUE);
+	SetLetter(P_LETTER);
+	DrawStringAt(0,2," به نام خدا ",Color_WHITE,Color_RED);
+	DrawStringAt(1,0," فونت فارسی ",Color_WHITE,Color_BLACK);
+	SetLetter(E_LETTER);
+	DrawStringAt(3,0," www.OUO.ir ",Color_BLACK,Color_WHITE);
+	DrawStringAt(4,0," TFT-ILI9488 ",Color_WHITE,Color_MAROON);
+	DrawStringAt(5,0," STM32 F767 zi ",Color_WHITE,Color_PINK);
+	HAL_Delay(500);
+
+//	ILI9488_Set_Rotation(1);
+//	ILI9488_Fill_Screen(Color_BLUE);
+//	SetLetter(P_LETTER);
+//	DrawStringAt(0, 0," به نام خدا ",Color_WHITE,Color_RED);
+//	DrawStringAt(1, 0," فونت فارسی ",Color_WHITE,Color_BLACK);
+//	SetLetter(E_LETTER);
+//	DrawStringAt(3, 0," micronik.ir ",Color_BLACK,Color_WHITE);
+//	DrawStringAt(4, 0," TFT ILI9488 ",Color_WHITE,Color_MAROON);
+//	DrawStringAt(5, 0," STM32 F767 zi ",Color_WHITE,Color_PINK);
+//	HAL_Delay(1000);
+
+//	ILI9488_Set_Rotation(2);
+//	ILI9488_Fill_Screen(Color_BLUE);
+//	SetLetter(P_LETTER);
+//	DrawStringAt(0, 0, " به نام خدا ", Color_WHITE, Color_RED);
+//	DrawStringAt(1, 0, " فونت فارسی ", Color_WHITE, Color_BLACK);
+//	SetLetter(E_LETTER);
+//	DrawStringAt(3,0," micronik.ir ",Color_BLACK,Color_WHITE);
+//	DrawStringAt(4,0," TFT ILI9488 ",Color_WHITE,Color_MAROON);
+//	DrawStringAt(5,0," STM32 F767 zi ",Color_WHITE,Color_PINK);
+//	HAL_Delay(1000);
+
+//	ILI9488_Set_Rotation(3);
+//	ILI9488_Fill_Screen(Color_BLUE);
+//	SetLetter(P_LETTER);
+//	DrawStringAt(0,0," به نام خدا ",Color_WHITE,Color_RED);
+//	DrawStringAt(1,0," فونت فارسی ",Color_WHITE,Color_BLACK);
+//	SetLetter(E_LETTER);
+//	DrawStringAt(3,0," micronik.ir ",Color_BLACK,Color_WHITE);
+//	DrawStringAt(4,0," TFT ILI9488 ",Color_WHITE,Color_MAROON);
+//	DrawStringAt(5,0," STM32 F767 zi ",Color_WHITE,Color_PINK);
+//	HAL_Delay(1000);
+
+
+	ILI9488_Set_Rotation(0);
+	ILI9488_Fill_Screen(Color_WHITE);
+	ILI9488_Draw_Fill_Rectangle(15 , 420, 60, 30 , Color_BLUE);
+	ILI9488_Draw_Fill_Rectangle(85 , 420, 60, 30 , Color_GREEN);
+	ILI9488_Draw_Fill_Rectangle(155, 420, 60, 30 , Color_YELLOW);
+	ILI9488_Draw_Fill_Rectangle(225, 420, 60, 30 , Color_RED);
+	
+	
+	ILI9488_Draw_Horizontal_Line(10, 10, 100, Color_BLACK);	
+	ILI9488_Draw_Vertical_Line(10, 10, 100, Color_BLACK);
+	ILI9488_Draw_line(10, 10, 120, 120,Color_BLACK);
+	ILI9488_Draw_Rectangle(120, 120, 200, 250, Color_BLACK);
+	ILI9488_Draw_Circle(200, 300, 20, Color_BLACK);
+
+	
+	//
+	HAL_Delay(2000);
+	
+	//--------------------------------------------------------------------------------------//
+	//
+	//--------------------------------------------------------------------------------------//
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+		if ( XPT2046_TouchPressed() )
+	  {
+			XPT2046_TouchGetCoordinates(&LCD_x, &LCD_y);
+			int xxx = (int)LCD_x;
+			int yyy = (int)LCD_y;
+			sprintf(LCD_str, "  X=%4d   Y=%4d    ", xxx, yyy);			
+			LcdFontXScale(2);
+			LcdFontYScale(2);
+			DrawStringAt(0, 0, LCD_str,Color_WHITE, Color_BLACK);
+			
+			if(LCD_x>=370 && LCD_x<=455 && LCD_y>=284 && LCD_y<=300)
+			{
+				ILI9488_Draw_Fill_Rectangle(10 , 40 , 300 ,370 , Color_BLUE);
+			}
+			if(LCD_x>=266 && LCD_x<=352 && LCD_y>=284 && LCD_y<=300)
+			{
+				ILI9488_Draw_Fill_Rectangle(10 , 40 , 300 ,370 , Color_GREEN);
+			}
+			if(LCD_x>=158 && LCD_x<=244 && LCD_y>=284 && LCD_y<=300)
+			{
+				ILI9488_Draw_Fill_Rectangle(10 , 40 , 300 ,370 , Color_YELLOW);
+			}
+			if(LCD_x>=50 && LCD_x<=133 && LCD_y>=284 && LCD_y<=300)
+			{
+				ILI9488_Draw_Fill_Rectangle(10 , 40 , 300 ,370 , Color_RED);
+				//ILI9488_DrawFilledCircle(210, 150, 30, Color_RED);
+			}
+
+		}
+		
+		
+
+		
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+		HAL_Delay(50);
+		
+		// LED Toggle
+		//HAL_GPIO_TogglePin(LED_Green_GPIO_Port,LED_Green_Pin);
+		HAL_GPIO_TogglePin(LED_Blue_GPIO_Port,LED_Blue_Pin);
+		HAL_GPIO_TogglePin(LED_Red_GPIO_Port,LED_Red_Pin);
+  }
+  /* USER CODE END 3 */
+}
+
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
+void SystemClock_Config(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+  /** Configure LSE Drive Capability
+  */
+  HAL_PWR_EnableBkUpAccess();
+
+  /** Configure the main internal regulator output voltage
+  */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLN = 200;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.PLL.PLLR = 2;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Activate the Over-Drive mode
+  */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/* USER CODE BEGIN 4 */
+
+/* USER CODE END 4 */
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+  {
+  }
+  /* USER CODE END Error_Handler_Debug */
+}
+
+#ifdef  USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t *file, uint32_t line)
+{
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */
